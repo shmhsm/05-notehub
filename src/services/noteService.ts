@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 
 export interface Note {
   id: string;
@@ -14,7 +15,7 @@ export interface CreateNotePayload {
   tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
 }
 
-interface FetchNotesResponse {
+export interface FetchNotesResponse {
   notes: Note[];
   total: number;
   page: number;
@@ -25,13 +26,13 @@ const noteInstance = axios.create({
   baseURL: 'https://notehub-public.goit.study/api',
 });
 
-noteInstance.interceptors.request.use((config) => {
+noteInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = import.meta.env.VITE_NOTEHUB_TOKEN;
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   } else {
-    console.error("Токен не найден! Проверь файл .env и перезапусти npm run dev");
+    console.error("Токен не найден! Проверь файл .env и переменные в Vercel");
   }
   
   return config;
