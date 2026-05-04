@@ -31,8 +31,6 @@ noteInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    console.error("Токен не найден! Проверь файл .env и переменные в Vercel");
   }
   
   return config;
