@@ -1,87 +1,76 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useDebouncedCallback } from 'use-debounce';
-
-import { fetchNotes, createNote, deleteNote } from '../../services/noteService';
-import type { CreateNotePayload, FetchNotesResponse } from '../../services/noteService';
-
-import SearchBox from '../SearchBox/SearchBox';
-import Pagination from '../Pagination/Pagination';
+import { fetchNotes } from '../../services/noteService';
 import NoteList from '../NoteList/NoteList';
-import Modal from '../Modal/Modal';
+import Pagination from '../Pagination/Pagination';
 import NoteForm from '../NoteForm/NoteForm';
-import Loader from '../Loader/Loader';
-import ErrorMessage from '../ErrorMessage/ErrorMessage';
-
+import Modal from 'react-modal'; 
 import css from './App.module.css';
 
+Modal.setAppElement('#root');
+
 export default function App() {
-  const queryClient = useQueryClient();
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const perPage = 12;
 
-  const { data, isLoading, isError } = useQuery<FetchNotesResponse, Error>({
-    queryKey: ['notes', page, search],
-    queryFn: () => fetchNotes({ page, perPage, search }),
-    placeholderData: keepPreviousData,
-  });
+  const perPage = 6;
 
-  const createMutation = useMutation({
-    mutationFn: (newNote: CreateNotePayload) => createNote(newNote),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      setIsModalOpen(false);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
-
-  const handleSearch = useDebouncedCallback((value: string) => {
+  const handleSearchChange = useDebouncedCallback((value: string) => {
     setSearch(value);
-    setPage(1);
+    setPage(1); 
   }, 500);
 
-  const handleCreateNote = (values: CreateNotePayload) => {
-    createMutation.mutate(values);
-  };
-
-  const handleDeleteNote = (id: string) => {
-    deleteMutation.mutate(id);
-  };
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['notes', page, search],
+    queryFn: () => fetchNotes({ page, perPage, search }),
+    placeholderData: keepPreviousData, // Для плавной смены страниц
+  });
 
   return (
-    <div className={css.app}>
-      <header className={css.toolbar}>
-        <SearchBox defaultValue={search} onChange={handleSearch} />
-        
-        {data && data.totalPages > 1 && (
-          <Pagination
-            totalPages={data.totalPages}
-            currentPage={page}
-            onPageChange={setPage}
-          />
-        )}
-        
-        <button className={css.button} onClick={() => setIsModalOpen(true)}>
-          Create note +
-        </button>
-      </header>
+  <div className={css.container}>
+   <header className={css.header}>
+      <input
+        type="text"
+        placeholder="Search notes"
+        className={css.searchInput}
+        onChange={(e) => handleSearchChange(e.target.value)}
+      />
 
-      {isLoading && <Loader />}
-      {isError && <ErrorMessage message="Failed to fetch notes." />}
-      
-      {data?.notes && <NoteList notes={data.notes} onDelete={handleDeleteNote} />}
+      {data && (
+        <Pagination
+          totalPages={data.totalPages}
+          currentPage={page}
+          onPageChange={(newPage) => setPage(newPage)}
+        />
+      )}
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <NoteForm onSubmit={handleCreateNote} onCancel={() => setIsModalOpen(false)} />
+      <button 
+        className={css.addBtn} 
+        onClick={() => setIsModalOpen(true)}
+      >
+        Create note +
+      </button>
+    </header>
+
+    <main className={css.main}>
+      {isLoading && <p className={css.message}>Loading notes...</p>}
+      {isError && <p className={css.error}>Error loading notes. Please try again.</p>}
+
+      {data && <NoteList notes={data.notes} />}
+    </main>
+
+    {isModalOpen && (
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        className={css.modal}
+        overlayClassName={css.overlay}
+      >
+        <NoteForm onCancel={() => setIsModalOpen(false)} />
       </Modal>
-    </div>
-  );
+    )}
+  </div>
+);
 }

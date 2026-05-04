@@ -1,13 +1,6 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
-
-export interface Note {
-  _id: string;
-  title: string;
-  content: string;
-  tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
-  createdAt: string;
-}
+import type { Note } from '../types/note'; 
 
 export interface CreateNotePayload {
   title: string;
@@ -20,7 +13,7 @@ export interface FetchNotesResponse {
   total: number;
   page: number;
   perPage: number;
-  totalPages: number; 
+  totalPages: number;
 }
 
 const noteInstance = axios.create({
@@ -59,6 +52,7 @@ export const createNote = async (note: CreateNotePayload): Promise<Note> => {
   return response.data;
 };
 
-export const deleteNote = async (id: string): Promise<void> => {
-  await noteInstance.delete(`/notes/${id}`);
+export const deleteNote = async (id: string): Promise<Note> => {
+  const response = await noteInstance.delete<Note>(`/notes/${id}`);
+  return response.data;
 };
