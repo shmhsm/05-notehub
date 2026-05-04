@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
-import type { Note } from '../types/note'; 
+import type { Note } from '../types/note';
 
 export interface CreateNotePayload {
   title: string;
@@ -10,10 +10,13 @@ export interface CreateNotePayload {
 
 export interface FetchNotesResponse {
   notes: Note[];
-  total: number;
+  totalPages: number;
+}
+
+interface FetchNotesParams {
   page: number;
   perPage: number;
-  totalPages: number;
+  search?: string;
 }
 
 const noteInstance = axios.create({
@@ -35,16 +38,23 @@ export const fetchNotes = async ({
 }: { 
   page: number; 
   perPage: number; 
-  search: string 
+  search?: string; 
 }): Promise<FetchNotesResponse> => {
-  const response = await noteInstance.get<Omit<FetchNotesResponse, 'totalPages'>>('/notes', {
-    params: { page, perPage, search },
-  });
-
-  return {
-    ...response.data,
-    totalPages: Math.ceil(response.data.total / response.data.perPage)
+  
+ const params: FetchNotesParams = { 
+    page, 
+    perPage 
   };
+
+  if (search && search.trim() !== '') {
+    params.search = search;
+  }
+
+  const response = await noteInstance.get<FetchNotesResponse>('/notes', {
+    params,
+  });
+  
+  return response.data;
 };
 
 export const createNote = async (note: CreateNotePayload): Promise<Note> => {

@@ -5,7 +5,9 @@ import { fetchNotes } from '../../services/noteService';
 import NoteList from '../NoteList/NoteList';
 import Pagination from '../Pagination/Pagination';
 import NoteForm from '../NoteForm/NoteForm';
-import Modal from 'react-modal'; 
+import SearchBox from '../SearchBox/SearchBox'; 
+import Modal from 'react-modal';
+import MyModal from '../Modal/Modal';
 import css from './App.module.css';
 
 Modal.setAppElement('#root');
@@ -19,58 +21,52 @@ export default function App() {
 
   const handleSearchChange = useDebouncedCallback((value: string) => {
     setSearch(value);
-    setPage(1); 
+    setPage(1);
   }, 500);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notes', page, search],
     queryFn: () => fetchNotes({ page, perPage, search }),
-    placeholderData: keepPreviousData, // Для плавной смены страниц
+    placeholderData: keepPreviousData,
   });
 
   return (
-  <div className={css.container}>
-   <header className={css.header}>
-      <input
-        type="text"
-        placeholder="Search notes"
-        className={css.searchInput}
-        onChange={(e) => handleSearchChange(e.target.value)}
-      />
+    <div className={css.container}>
+      <header className={css.header}>
+        <SearchBox onChange={handleSearchChange} />
 
-      {data && (
-        <Pagination
-          totalPages={data.totalPages}
-          currentPage={page}
-          onPageChange={(newPage) => setPage(newPage)}
-        />
-      )}
+        {data && data.totalPages > 1 && (
+          <Pagination
+            totalPages={data.totalPages}
+            currentPage={page}
+            onPageChange={(newPage) => setPage(newPage)}
+          />
+        )}
 
-      <button 
-        className={css.addBtn} 
-        onClick={() => setIsModalOpen(true)}
-      >
-        Create note +
-      </button>
-    </header>
+        <button className={css.addBtn} onClick={() => setIsModalOpen(true)}>
+          Create note +
+        </button>
+      </header>
 
-    <main className={css.main}>
-      {isLoading && <p className={css.message}>Loading notes...</p>}
-      {isError && <p className={css.error}>Error loading notes. Please try again.</p>}
+      <main className={css.main}>
+        {isLoading && <p className={css.message}>Loading notes...</p>}
+        {isError && <p className={css.error}>Error loading notes.</p>}
 
-      {data && <NoteList notes={data.notes} />}
-    </main>
+        {data && data.notes.length > 0 ? (
+          <NoteList notes={data.notes} />
+        ) : (
+          !isLoading && <p className={css.message}>No notes found.</p>
+        )}
+      </main>
 
-    {isModalOpen && (
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        className={css.modal}
-        overlayClassName={css.overlay}
+      {isModalOpen && (
+      <MyModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)}
       >
         <NoteForm onCancel={() => setIsModalOpen(false)} />
-      </Modal>
-    )}
-  </div>
-);
+      </MyModal>
+)}
+    </div>
+  );
 }

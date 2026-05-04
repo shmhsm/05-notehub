@@ -1,22 +1,25 @@
-.app {
+/* Был .app, стал .container */
+.container {
   width: 90%;
   max-width: 1280px;
   margin: 0px auto;
   padding: 0 16px 16px;
 }
 
-.toolbar {
+/* Был .toolbar, стал .header */
+.header {
   margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px 0;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  background-color: transparent;
+  /* Убрал серый фон, чтобы было как на светлом фото */
 }
 
-.button {
-  padding: 6px 12px;
+/* Был .button, стал .addBtn */
+.addBtn {
+  padding: 8px 16px;
   font-size: 16px;
   color: #fff;
   background-color: #0d6efd;
@@ -24,8 +27,55 @@
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
+  /* Чтобы текст кнопки не переносился */
 }
 
-.button:hover {
+.addBtn:hover {
   background-color: #0b5ed7;
+}
+
+/* Добавляем стили для main, чтобы заметки не прилипали */
+.main {
+  width: 100%;
+}
+
+.message {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 50px;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  color: #dc3545;
+  margin-top: 50px;
+}
+
+/* Стили для модалки (чтобы она не была на весь экран без стилей) */
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 100%;
+  outline: none;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }

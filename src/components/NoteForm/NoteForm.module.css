@@ -4,7 +4,8 @@
     gap: 16px;
 }
 
-.formGroup {
+/* Был .formGroup, стал .fieldWrapper */
+.fieldWrapper {
     display: flex;
     flex-direction: column;
     font-size: 14px;
@@ -21,15 +22,20 @@
     border: 1px solid #ced4da;
     border-radius: 4px;
     resize: none;
+    width: 100%;
+    /* Чтобы инпуты занимали всю ширину */
+    box-sizing: border-box;
 }
 
 .actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    margin-top: 8px;
 }
 
-.submitButton {
+/* Был .submitButton, стал .submitBtn */
+.submitBtn {
     padding: 8px 16px;
     font-size: 16px;
     background-color: #0d6efd;
@@ -40,16 +46,17 @@
     transition: background-color 0.2s ease;
 }
 
-.submitButton:hover {
+.submitBtn:hover {
     background-color: #0b5ed7;
 }
 
-.submitButton:disabled {
+.submitBtn:disabled {
     background-color: #6c757d;
     cursor: not-allowed;
 }
 
-.cancelButton {
+/* Был .cancelButton, стал .cancelBtn */
+.cancelBtn {
     padding: 8px 16px;
     font-size: 16px;
     background-color: #f8f9fa;
@@ -60,7 +67,7 @@
     transition: background-color 0.2s ease;
 }
 
-.cancelButton:hover {
+.cancelBtn:hover {
     background-color: #e2e6ea;
 }
 
