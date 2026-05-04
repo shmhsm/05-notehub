@@ -77,7 +77,7 @@ export default function App() {
       {isLoading && <Loader />}
       {isError && <ErrorMessage message="Failed to fetch notes." />}
       
-      {data?.data && <NoteList notes={data.data} onDelete={handleDeleteNote} />}
+      {data?.notes && <NoteList notes={data.notes} onDelete={handleDeleteNote} />}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <NoteForm onSubmit={handleCreateNote} onCancel={() => setIsModalOpen(false)} />

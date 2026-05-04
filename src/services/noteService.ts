@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 export interface Note {
-  id: string;
+  _id: string;
   title: string;
   content: string;
   tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
@@ -20,6 +20,7 @@ export interface FetchNotesResponse {
   total: number;
   page: number;
   perPage: number;
+  totalPages: number; 
 }
 
 const noteInstance = axios.create({
@@ -28,11 +29,9 @@ const noteInstance = axios.create({
 
 noteInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = import.meta.env.VITE_NOTEHUB_TOKEN;
-  
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  
   return config;
 });
 
@@ -45,10 +44,14 @@ export const fetchNotes = async ({
   perPage: number; 
   search: string 
 }): Promise<FetchNotesResponse> => {
-  const response = await noteInstance.get<FetchNotesResponse>('/notes', {
+  const response = await noteInstance.get<Omit<FetchNotesResponse, 'totalPages'>>('/notes', {
     params: { page, perPage, search },
   });
-  return response.data;
+
+  return {
+    ...response.data,
+    totalPages: Math.ceil(response.data.total / response.data.perPage)
+  };
 };
 
 export const createNote = async (note: CreateNotePayload): Promise<Note> => {
